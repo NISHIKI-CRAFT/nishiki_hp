@@ -1,0 +1,432 @@
+:root {
+  /* NISHIKI palette, aligned with the NISHIKI LIST design tokens. */
+  --paper: #f4f4f6; /* oklch(96.7% 0.003 285) */
+  --page: #e9e9ec;
+  --ink: #070709; /* oklch(13% 0.006 285) */
+  --muted: #6b6b72;
+  --line: #d9d9de;
+  --accent: #f0503a; /* oklch(65% 0.2 31) — 朱色 / vermilion */
+  --accent-press: #d8432f;
+
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+    "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------- Layout ---------- */
+
+.stage {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.koi-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.topbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px clamp(24px, 5vw, 48px);
+}
+
+.topbar .mark {
+  display: block;
+  height: clamp(28px, 3.2vw, 34px);
+  width: auto;
+  /* wordmark artwork is light (made for a dark bg); recolour to ink on the
+     light page while preserving the red dot's hue. */
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.topbar .nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 30px);
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.topbar .nav a {
+  transition: color 0.15s ease;
+}
+.topbar .nav a:hover {
+  color: var(--ink);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(16px, 3vh, 40px) 24px clamp(20px, 3.5vh, 44px);
+}
+
+/* Soft paper halo so the wordmark stays readable over the koi. */
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: min(760px, 92vw);
+  height: min(760px, 92vw);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(244, 244, 246, 0.92),
+    rgba(244, 244, 246, 0.72) 42%,
+    rgba(244, 244, 246, 0) 72%
+  );
+}
+
+.logo {
+  display: block;
+  margin-bottom: clamp(14px, 2.4vh, 28px);
+}
+
+.logo img {
+  display: block;
+  width: clamp(80px, 12vw, 108px);
+  height: auto;
+  border-radius: 23%; /* app-icon squircle */
+  box-shadow:
+    0 12px 34px rgba(7, 7, 9, 0.12),
+    0 3px 8px rgba(7, 7, 9, 0.08);
+}
+
+.wordmark {
+  margin: 0;
+  max-width: 100%;
+  font-weight: 600;
+  font-size: clamp(2.1rem, 8.5vw, 5rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.wordmark .craft {
+  color: var(--accent);
+}
+
+.lead {
+  margin: 20px 0 0;
+  max-width: 34ch;
+  color: var(--muted);
+  font-size: clamp(0.98rem, 2.4vw, 1.12rem);
+  line-height: 1.6;
+}
+
+.lead-ja {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- CTAs (Vercel/Geist-style buttons) ---------- */
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: clamp(20px, 3vh, 34px);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  will-change: transform;
+}
+
+.btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(7, 7, 9, 0.18);
+}
+.btn-primary:hover {
+  background: #1b1b20;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: var(--ink);
+  border-color: var(--line);
+  box-shadow: 0 1px 2px rgba(7, 7, 9, 0.04);
+}
+.btn-secondary:hover {
+  border-color: #c3c3ca;
+  background: #fbfbfc;
+}
+
+.btn-brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ---------- App chip ---------- */
+
+.app-chip {
+  margin-top: clamp(22px, 3.5vh, 44px);
+  max-width: 100%;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+  padding: 10px 16px 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(8px);
+  font-size: 0.84rem;
+  color: var(--muted);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.app-chip .blurb {
+  white-space: nowrap;
+}
+.app-chip:hover {
+  border-color: #c3c3ca;
+  background: rgba(255, 255, 255, 0.9);
+}
+.app-chip .tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  border: 1px solid rgba(240, 80, 58, 0.3);
+  border-radius: 6px;
+  padding: 3px 7px;
+}
+.app-chip .name {
+  font-weight: 600;
+  color: var(--ink);
+}
+.app-chip .arrow {
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+.app-chip:hover .arrow {
+  transform: translateX(2px);
+  color: var(--ink);
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px clamp(20px, 5vw, 44px);
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.footer a {
+  transition: color 0.15s ease;
+}
+.footer a:hover {
+  color: var(--ink);
+}
+
+.footer .links {
+  display: flex;
+  gap: 18px;
+}
+
+@media (max-width: 560px) {
+  .topbar .nav {
+    display: none;
+  }
+  .app-chip .blurb {
+    display: none;
+  }
+  .cta-row .btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+/* ---------- Legal pages (privacy, etc.) ---------- */
+
+.legal {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.85;
+}
+
+.legal-wrap {
+  width: min(100% - 40px, 760px);
+  margin-inline: auto;
+}
+
+.legal-top {
+  border-bottom: 1px solid var(--line);
+}
+
+.legal-top .legal-wrap {
+  padding-block: 20px;
+}
+
+.legal-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+  transition: color 0.15s ease;
+}
+.legal-home:hover {
+  color: var(--accent);
+}
+
+.legal-main {
+  flex: 1;
+  padding-block: clamp(44px, 8vw, 84px);
+}
+
+.legal-eyebrow {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.legal-main h1 {
+  margin: 10px 0 18px;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+
+.legal-intro {
+  color: var(--muted);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.legal-main article {
+  margin-top: 40px;
+}
+
+.legal-main section {
+  padding-block: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.legal-main h2 {
+  margin: 0 0 10px;
+  font-size: 1.12rem;
+}
+
+.legal-main p {
+  margin: 8px 0;
+}
+
+.legal-main a {
+  color: var(--accent);
+  text-underline-offset: 0.2em;
+  text-decoration: underline;
+}
+.legal-main a:hover {
+  opacity: 0.72;
+}
+
+.legal-updated {
+  margin-top: 32px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.legal-footer {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.legal-footer .legal-wrap {
+  padding-block: 22px;
+}
