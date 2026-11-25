@@ -157,17 +157,10 @@ a {
 
 .lead {
   margin: 20px 0 0;
-  max-width: 34ch;
+  max-width: none;
   color: var(--muted);
   font-size: clamp(0.98rem, 2.4vw, 1.12rem);
   line-height: 1.6;
-}
-
-.lead-ja {
-  margin: 8px 0 0;
-  color: var(--muted);
-  font-size: 0.86rem;
-  letter-spacing: 0.02em;
 }
 
 /* ---------- CTAs (Vercel/Geist-style buttons) ---------- */

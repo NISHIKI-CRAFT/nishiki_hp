@@ -34,7 +34,6 @@ export default function Home() {
         </h1>
 
         <p className="lead">{site.tagline}</p>
-        <p className="lead-ja">錦のように、ひとつずつ丁寧に。iPhoneアプリを作っています。</p>
 
         <div className="cta-row">
           <a
