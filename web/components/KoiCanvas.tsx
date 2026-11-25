@@ -17,7 +17,8 @@ import { useEffect, useRef } from "react";
 
 const RAMP = " .:-=+*oxsX%8#@"; // sparse (edge) -> dense (spine)
 const RED = [233, 78, 55] as const; // 朱色 body
-const PALE = [168, 164, 160] as const; // warm-grey "white" koi patches
+const PALE = [176, 172, 168] as const; // warm-grey "white" (白) koi patches
+const SUMI = [40, 38, 44] as const; // black (墨) markings — sanke / showa
 const INK = [18, 18, 20] as const; // eyes
 
 // water ripple emitted on click
@@ -52,6 +53,10 @@ type Koi = {
   wander: number;
   seed: number;
   depth: number; // 0.5 (deep/faint) .. 1 (near)
+  // variety / markings
+  whiteCov: number; // how much white (紅白 pattern) 0..1
+  sumi: number; // black (墨) level — 0 kohaku/benigoi, up to ~0.6 showa
+  redShade: number; // -1 deeper crimson .. +1 warmer orange
 };
 
 type Cell = { d: number; r: number; g: number; b: number };
@@ -88,9 +93,35 @@ export default function KoiCanvas() {
 
     function makeKoi(atX?: number): Koi {
       const depth = 0.55 + Math.random() * 0.45;
-      const len = (210 + Math.random() * 170) * depth * sizeScale;
+      const len = (220 + Math.random() * 180) * depth * sizeScale;
       const goRight = Math.random() < 0.5;
       const dir = (goRight ? 0 : Math.PI) + (Math.random() - 0.5) * 0.35;
+      // variety — vermilion stays dominant, but each koi reads differently
+      const roll = Math.random();
+      let whiteCov: number;
+      let sumi: number;
+      let redShade: number;
+      if (roll < 0.34) {
+        // 緋鯉 / benigoi — almost solid vermilion
+        whiteCov = 0.08;
+        sumi = 0;
+        redShade = 0.1 + Math.random() * 0.6; // warmer
+      } else if (roll < 0.72) {
+        // 紅白 / kohaku — red on white
+        whiteCov = 0.4 + Math.random() * 0.15;
+        sumi = 0;
+        redShade = (Math.random() - 0.5) * 0.5;
+      } else if (roll < 0.9) {
+        // 大正三色 / sanke — red + white + a little black
+        whiteCov = 0.38;
+        sumi = 0.22 + Math.random() * 0.12;
+        redShade = (Math.random() - 0.5) * 0.4;
+      } else {
+        // 昭和三色 / showa — bolder black
+        whiteCov = 0.32;
+        sumi = 0.5 + Math.random() * 0.2;
+        redShade = -0.1 - Math.random() * 0.3; // deeper crimson
+      }
       return {
         x: atX ?? Math.random() * W,
         y: 0.14 * H + Math.random() * 0.72 * H,
@@ -98,7 +129,8 @@ export default function KoiCanvas() {
         // travel speed varied largely independently of size for individuality
         speed: (30 + Math.random() * 70) * (0.75 + 0.25 * depth),
         len,
-        width: len * (0.17 + Math.random() * 0.03),
+        // slimmer, more elegant koi (less catfish)
+        width: len * (0.122 + Math.random() * 0.028),
         phase: Math.random() * TAU,
         waves: 0.75 + Math.random() * 0.4,
         amp: len * (0.11 + Math.random() * 0.05),
@@ -109,6 +141,9 @@ export default function KoiCanvas() {
         wander: Math.random() * TAU,
         seed: Math.random() * 12,
         depth,
+        whiteCov,
+        sumi,
+        redShade,
       };
     }
 
@@ -140,32 +175,45 @@ export default function KoiCanvas() {
     }
 
     // top-down koi half-width profile along the body (nx 0=nose .. 1=peduncle)
-    // Stocky carp body: full through the middle, then a SHORT thick peduncle.
+    // Slim, spindle-shaped koi: narrowish rounded head, broad shoulders,
+    // then a long graceful taper to a sturdy peduncle.
     function halfWidth(nx: number): number {
-      if (nx < 0.28) {
-        // blunt, rounded head growing to the shoulders
-        const u = nx / 0.28;
-        return 0.42 + 0.58 * smooth(Math.sqrt(u));
+      if (nx < 0.2) {
+        // rounded, not-too-wide head
+        const u = nx / 0.2;
+        return 0.34 + 0.66 * smooth(Math.sqrt(u));
       }
-      if (nx < 0.68) {
-        // hold a full body through the middle
-        const u = (nx - 0.28) / 0.4;
-        return 1 - 0.26 * smooth(u);
+      if (nx < 0.44) {
+        // shoulders hold near full width
+        const u = (nx - 0.2) / 0.24;
+        return 1 - 0.12 * smooth(u);
       }
-      // taper quickly to a short, sturdy peduncle near the tail
-      const u = (nx - 0.68) / 0.32;
-      return 0.74 - 0.47 * smooth(u);
+      // long, elegant taper to a slim-but-sturdy peduncle
+      const u = (nx - 0.44) / 0.56;
+      return 0.88 - 0.6 * smooth(u);
     }
 
-    // deliberate 紅白 white markings (smooth blobs) — keeps the body solid
-    function white(nx: number, fr: number): number {
-      const g1 = Math.exp(
-        -(((nx - 0.33) / 0.1) ** 2 + ((fr - 0.1) / 0.8) ** 2),
-      );
-      const g2 = Math.exp(
-        -(((nx - 0.63) / 0.12) ** 2 + ((fr + 0.12) / 0.85) ** 2),
-      );
-      return clamp(Math.max(g1, g2) * 1.05, 0, 0.9);
+    // per-koi marking field: a few soft blobs placed by the koi's seed so no
+    // two fish share the same pattern. `n` blobs, `cov` scales their presence.
+    function blobs(
+      nx: number,
+      fr: number,
+      seed: number,
+      n: number,
+      cov: number,
+      spreadFr: number,
+    ): number {
+      let m = 0;
+      for (let i = 0; i < n; i++) {
+        const cxp = 0.2 + 0.58 * hash(seed * 1.7 + i * 2.3 + 0.5);
+        const cwN = 0.07 + 0.08 * hash(seed + i * 4.1 + 1.3);
+        const cfr = (hash(seed * 2.1 + i * 3.7) - 0.5) * 1.4;
+        m = Math.max(
+          m,
+          Math.exp(-(((nx - cxp) / cwN) ** 2 + ((fr - cfr) / spreadFr) ** 2)),
+        );
+      }
+      return clamp(m * (0.45 + cov * 1.2), 0, 1);
     }
 
     function stamp(
@@ -194,6 +242,12 @@ export default function KoiCanvas() {
       const stepL = Math.max(1.2, cw * 0.42);
       const edgeAlpha = 0.6 + 0.4 * k.depth;
 
+      // this koi's vermilion, shaded warmer/cooler for individuality
+      const baseR = clamp(RED[0] + k.redShade * 6, 210, 244);
+      const baseG = clamp(RED[1] + k.redShade * 34, 52, 128);
+      const baseB = clamp(RED[2] + k.redShade * 10, 40, 80);
+      const baseCol: readonly [number, number, number] = [baseR, baseG, baseB];
+
       // spine bend at body fraction nx (travelling wave; tail sways most)
       const bend = (nx: number) =>
         k.amp *
@@ -221,12 +275,23 @@ export default function KoiCanvas() {
           let d = (1 - 0.5 * afr * afr) * (0.82 + 0.18 * (1 - nx)) * edge;
           d *= 0.92 + 0.08 * hash(a * 3.1 + l * 1.7 + k.seed);
           d = clamp(d, 0, 1) * edgeAlpha;
-          // kōhaku: lighten to pale inside the white markings, keep it solid
-          const w = white(nx, fr);
-          const r = Math.round(RED[0] + (PALE[0] - RED[0]) * w);
-          const g = Math.round(RED[1] + (PALE[1] - RED[1]) * w);
-          const bl = Math.round(RED[2] + (PALE[2] - RED[2]) * w);
-          stamp(wx, wy, d * (1 - 0.28 * w), [r, g, bl]);
+          // markings: white (白) lightens, sumi (墨) darkens — sharpened edges
+          const w = smooth(clamp((blobs(nx, fr, k.seed, 3, k.whiteCov, 0.95) - 0.38) / 0.28, 0, 1));
+          const s =
+            k.sumi > 0
+              ? smooth(clamp((blobs(nx, fr, k.seed * 2.7 + 4, 2, k.sumi, 0.7) - 0.42) / 0.26, 0, 1))
+              : 0;
+          let r = baseR + (PALE[0] - baseR) * w;
+          let g = baseG + (PALE[1] - baseG) * w;
+          let bl = baseB + (PALE[2] - baseB) * w;
+          r += (SUMI[0] - r) * s;
+          g += (SUMI[1] - g) * s;
+          bl += (SUMI[2] - bl) * s;
+          stamp(wx, wy, d * (1 - 0.26 * w + 0.12 * s), [
+            Math.round(r),
+            Math.round(g),
+            Math.round(bl),
+          ]);
         }
       }
 
@@ -254,7 +319,7 @@ export default function KoiCanvas() {
           // solid, fullest through the middle
           let d = (1 - u * 0.24) * (0.7 - 0.08 * afr);
           d = clamp(d, 0, 1) * edgeAlpha * 0.95;
-          stamp(sx + px * l, sy + py * l, d, RED);
+          stamp(sx + px * l, sy + py * l, d, baseCol);
         }
       }
 
@@ -273,7 +338,7 @@ export default function KoiCanvas() {
           const back = t * k.len * 0.1;
           const wx = fsx - dx * back + px * lat;
           const wy = fsy - dy * back + py * lat;
-          stamp(wx, wy, (1 - t) * 0.5 * edgeAlpha, RED);
+          stamp(wx, wy, (1 - t) * 0.5 * edgeAlpha, baseCol);
         }
       }
 
