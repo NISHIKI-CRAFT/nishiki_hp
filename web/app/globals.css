@@ -7,6 +7,14 @@
   --line: #d9d9de;
   --accent: #f0503a; /* oklch(65% 0.2 31) — 朱色 / vermilion */
   --accent-press: #d8432f;
+  --surface: #ffffff; /* raised surfaces: chips, secondary button */
+  --btn-bg: #0a0a0d; /* primary button */
+  --btn-bg-hover: #1b1b20;
+  --btn-fg: #ffffff;
+  --shadow: rgba(7, 7, 9, 0.12);
+  --shadow-sm: rgba(7, 7, 9, 0.08);
+  --wordmark-filter: invert(1) hue-rotate(180deg);
+  --mark-img: url("/mark-light.jpg");
 
   --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
     "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
@@ -14,6 +22,47 @@
     monospace;
 
   color-scheme: light;
+}
+
+/* Dark theme — follows the OS unless the user picks a theme (data-theme). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121318;
+    --page: #0c0d11;
+    --ink: #f1f1f4;
+    --muted: #9a9ba6;
+    --line: #2a2c34;
+    --accent: #f5563f;
+    --accent-press: #ff6a52;
+    --surface: #1b1d24;
+    --btn-bg: #f1f1f4;
+    --btn-bg-hover: #ffffff;
+    --btn-fg: #0a0a0d;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --shadow-sm: rgba(0, 0, 0, 0.4);
+    --wordmark-filter: none;
+    --mark-img: url("/mark-dark.png");
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #121318;
+  --page: #0c0d11;
+  --ink: #f1f1f4;
+  --muted: #9a9ba6;
+  --line: #2a2c34;
+  --accent: #f5563f;
+  --accent-press: #ff6a52;
+  --surface: #1b1d24;
+  --btn-bg: #f1f1f4;
+  --btn-bg-hover: #ffffff;
+  --btn-fg: #0a0a0d;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --shadow-sm: rgba(0, 0, 0, 0.4);
+  --wordmark-filter: none;
+  --mark-img: url("/mark-dark.png");
+  color-scheme: dark;
 }
 
 * {
@@ -75,9 +124,15 @@ a {
   display: block;
   height: clamp(28px, 3.2vw, 34px);
   width: auto;
-  /* wordmark artwork is light (made for a dark bg); recolour to ink on the
-     light page while preserving the red dot's hue. */
-  filter: invert(1) hue-rotate(180deg);
+  /* wordmark artwork is light (made for a dark bg); on the light page it's
+     recoloured to ink (preserving the red dot's hue); in dark it's left as-is. */
+  filter: var(--wordmark-filter);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 28px);
 }
 
 .topbar .nav {
@@ -86,6 +141,32 @@ a {
   gap: clamp(16px, 3vw, 30px);
   font-size: 0.9rem;
   color: var(--muted);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.theme-toggle:hover {
+  color: var(--ink);
+  border-color: var(--muted);
+}
+.theme-toggle svg {
+  width: 17px;
+  height: 17px;
 }
 
 .topbar .nav a {
@@ -119,25 +200,22 @@ a {
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    rgba(244, 244, 246, 0.92),
-    rgba(244, 244, 246, 0.72) 42%,
-    rgba(244, 244, 246, 0) 72%
+    color-mix(in srgb, var(--paper) 92%, transparent),
+    color-mix(in srgb, var(--paper) 72%, transparent) 42%,
+    color-mix(in srgb, var(--paper) 0%, transparent) 72%
   );
 }
 
-.logo {
+.logo-mark {
   display: block;
   margin-bottom: clamp(14px, 2.4vh, 28px);
-}
-
-.logo img {
-  display: block;
   width: clamp(80px, 12vw, 108px);
-  height: auto;
+  aspect-ratio: 1;
   border-radius: 23%; /* app-icon squircle */
+  background: var(--mark-img) center / cover no-repeat;
   box-shadow:
-    0 12px 34px rgba(7, 7, 9, 0.12),
-    0 3px 8px rgba(7, 7, 9, 0.08);
+    0 12px 34px var(--shadow),
+    0 3px 8px var(--shadow-sm);
 }
 
 .wordmark {
@@ -203,23 +281,22 @@ a {
 }
 
 .btn-primary {
-  background: var(--ink);
-  color: #fff;
-  box-shadow: 0 1px 2px rgba(7, 7, 9, 0.18);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  box-shadow: 0 1px 2px var(--shadow);
 }
 .btn-primary:hover {
-  background: #1b1b20;
+  background: var(--btn-bg-hover);
 }
 
 .btn-secondary {
-  background: #fff;
+  background: var(--surface);
   color: var(--ink);
   border-color: var(--line);
-  box-shadow: 0 1px 2px rgba(7, 7, 9, 0.04);
+  box-shadow: 0 1px 2px var(--shadow-sm);
 }
 .btn-secondary:hover {
-  border-color: #c3c3ca;
-  background: #fbfbfc;
+  border-color: var(--muted);
 }
 
 .btn-brand-dot {
@@ -242,7 +319,7 @@ a {
   padding: 10px 16px 10px 12px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.72);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
   backdrop-filter: blur(8px);
   font-size: 0.84rem;
   color: var(--muted);
@@ -255,8 +332,8 @@ a {
   white-space: nowrap;
 }
 .app-chip:hover {
-  border-color: #c3c3ca;
-  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--muted);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
 }
 .app-chip .tag {
   font-family: var(--font-mono);

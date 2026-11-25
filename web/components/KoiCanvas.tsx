@@ -88,6 +88,29 @@ export default function KoiCanvas() {
     let ripples: { x: number; y: number; age: number }[] = [];
     let sizeScale = 1;
 
+    // theme-aware palette (koi read on light paper OR dark water)
+    let redBase: readonly [number, number, number] = RED;
+    let paleCol: readonly [number, number, number] = PALE;
+    let sumiCol: readonly [number, number, number] = SUMI;
+    let rippleCol: readonly [number, number, number] = RIPPLE_COL;
+    let tileA = 0.34; // body tile opacity — brighter on dark water
+
+    function readDark(): boolean {
+      const t = document.documentElement.getAttribute("data-theme");
+      if (t === "dark") return true;
+      if (t === "light") return false;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    function applyTheme() {
+      const dark = readDark();
+      redBase = dark ? [242, 92, 66] : RED;
+      paleCol = dark ? [223, 220, 215] : PALE;
+      sumiCol = dark ? [10, 9, 14] : SUMI;
+      rippleCol = dark ? [150, 160, 178] : RIPPLE_COL;
+      tileA = dark ? 0.46 : 0.34;
+    }
+    applyTheme();
+
     const mono =
       'var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace';
 
@@ -243,9 +266,9 @@ export default function KoiCanvas() {
       const edgeAlpha = 0.6 + 0.4 * k.depth;
 
       // this koi's vermilion, shaded warmer/cooler for individuality
-      const baseR = clamp(RED[0] + k.redShade * 6, 210, 244);
-      const baseG = clamp(RED[1] + k.redShade * 34, 52, 128);
-      const baseB = clamp(RED[2] + k.redShade * 10, 40, 80);
+      const baseR = clamp(redBase[0] + k.redShade * 6, 205, 252);
+      const baseG = clamp(redBase[1] + k.redShade * 34, 52, 140);
+      const baseB = clamp(redBase[2] + k.redShade * 10, 40, 92);
       const baseCol: readonly [number, number, number] = [baseR, baseG, baseB];
 
       // spine bend at body fraction nx (travelling wave; tail sways most)
@@ -281,12 +304,12 @@ export default function KoiCanvas() {
             k.sumi > 0
               ? smooth(clamp((blobs(nx, fr, k.seed * 2.7 + 4, 2, k.sumi, 0.7) - 0.42) / 0.26, 0, 1))
               : 0;
-          let r = baseR + (PALE[0] - baseR) * w;
-          let g = baseG + (PALE[1] - baseG) * w;
-          let bl = baseB + (PALE[2] - baseB) * w;
-          r += (SUMI[0] - r) * s;
-          g += (SUMI[1] - g) * s;
-          bl += (SUMI[2] - bl) * s;
+          let r = baseR + (paleCol[0] - baseR) * w;
+          let g = baseG + (paleCol[1] - baseG) * w;
+          let bl = baseB + (paleCol[2] - baseB) * w;
+          r += (sumiCol[0] - r) * s;
+          g += (sumiCol[1] - g) * s;
+          bl += (sumiCol[2] - bl) * s;
           stamp(wx, wy, d * (1 - 0.26 * w + 0.12 * s), [
             Math.round(r),
             Math.round(g),
@@ -368,7 +391,7 @@ export default function KoiCanvas() {
           const x = c * cw;
           const y = r * ch;
           // soft mosaic tile
-          cx.fillStyle = `rgba(${cell.r},${cell.g},${cell.b},${d * 0.34})`;
+          cx.fillStyle = `rgba(${cell.r},${cell.g},${cell.b},${d * tileA})`;
           cx.fillRect(x + 0.5, y + 0.5, tw, thh);
           // density glyph
           const g = RAMP[clamp(Math.round(d * rl), 0, rl)];
@@ -408,11 +431,11 @@ export default function KoiCanvas() {
             const a = wave * (1 - back / (lam * 3)) * fade;
             if (a < 0.04) continue;
             // faint water tile + glyph
-            cx.fillStyle = `rgba(${RIPPLE_COL[0]},${RIPPLE_COL[1]},${RIPPLE_COL[2]},${clamp(a * 0.3, 0, 0.3)})`;
+            cx.fillStyle = `rgba(${rippleCol[0]},${rippleCol[1]},${rippleCol[2]},${clamp(a * 0.3, 0, 0.3)})`;
             cx.fillRect(ci * cw + 0.5, ry * ch + 0.5, tw, thh);
             const g = RIPPLE_RAMP[clamp(Math.round(a * rrl), 0, rrl)];
             if (g === " ") continue;
-            cx.fillStyle = `rgba(${RIPPLE_COL[0]},${RIPPLE_COL[1]},${RIPPLE_COL[2]},${clamp(a, 0, 0.9)})`;
+            cx.fillStyle = `rgba(${rippleCol[0]},${rippleCol[1]},${rippleCol[2]},${clamp(a, 0, 0.9)})`;
             cx.fillText(g, pxp, py + 0.5);
           }
         }
@@ -502,12 +525,21 @@ export default function KoiCanvas() {
     else raf = requestAnimationFrame(frame);
 
     const onResize = () => resize();
+    const onTheme = () => {
+      applyTheme();
+      if (reduce) render(0.9); // repaint the still frame on theme change
+    };
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
     window.addEventListener("resize", onResize);
     window.addEventListener("pointerdown", onPoint);
+    window.addEventListener("themechange", onTheme);
+    mq.addEventListener("change", onTheme);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("pointerdown", onPoint);
+      window.removeEventListener("themechange", onTheme);
+      mq.removeEventListener("change", onTheme);
     };
   }, []);
 

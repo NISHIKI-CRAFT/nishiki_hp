@@ -1,5 +1,6 @@
 import Link from "next/link";
 import KoiCanvas from "@/components/KoiCanvas";
+import ThemeToggle from "@/components/ThemeToggle";
 import { site } from "./site";
 
 export default function Home() {
@@ -11,23 +12,22 @@ export default function Home() {
         {/* NISHIKI. wordmark — light art; recoloured to ink for light mode via CSS */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="mark" src="/wordmark.png" alt="NISHIKI CRAFT" />
-        <nav className="nav">
-          <a href={site.appStoreUrl} target="_blank" rel="noreferrer">
-            Apps
-          </a>
-          <a href={site.discordUrl} target="_blank" rel="noreferrer">
-            Discord
-          </a>
-        </nav>
+        <div className="topbar-right">
+          <nav className="nav">
+            <a href={site.appStoreUrl} target="_blank" rel="noreferrer">
+              Apps
+            </a>
+            <a href={site.discordUrl} target="_blank" rel="noreferrer">
+              Discord
+            </a>
+          </nav>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="hero">
-        {/* App-icon mark. Dark-mode source is wired up ready (dark mode itself is TODO). */}
-        <picture className="logo">
-          <source srcSet="/mark-dark.png" media="(prefers-color-scheme: dark)" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/mark-light.jpg" alt="NISHIKI CRAFT" width={108} height={108} />
-        </picture>
+        {/* App-icon mark; swaps light/dark artwork via CSS --mark-img */}
+        <div className="logo-mark" role="img" aria-label="NISHIKI CRAFT" />
 
         <h1 className="wordmark">
           NISHIKI <span className="craft">CRAFT</span>
