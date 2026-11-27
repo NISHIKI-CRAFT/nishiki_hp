@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 
 // Shared tuning values for the field and its water interactions.
-const GRID_SPACING = { desktop: 16, mobile: 16 * (8.8 / 11.2) } as const;
+const MOBILE_DOT_SCALE = 0.7;
+const GRID_SPACING = { desktop: 16, mobile: 16 * (8.8 / 11.2) * MOBILE_DOT_SCALE } as const;
 const BASE_DOT_RADIUS = 1.35;
 const BASE_DOT_ALPHA = 0.32;
 const BASE_DOT_COLOR = { light: [79, 83, 91], dark: [130, 140, 156] } as const;
@@ -572,7 +573,9 @@ export default function KoiCanvas() {
       }
       cx.clearRect(0, 0, W, H);
       const blend = immediate ? 1 : 1 - Math.pow(1 - DOT_FIELD_CONFIG.animation.transitionSpeed, dt * 60);
-      const maxRadius = cw * KOI_DOT_RADIUS_MAX;
+      const dotScale = W < 768 ? MOBILE_DOT_SCALE : 1;
+      const designPitch = cw / dotScale;
+      const maxRadius = designPitch * KOI_DOT_RADIUS_MAX;
       for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
         const i = r * cols + c;
         const x = (c + 0.5) * cw, y = (r + 0.5) * ch;
@@ -601,11 +604,11 @@ export default function KoiCanvas() {
             (maxRadius - KOI_DOT_RADIUS_MIN) * fishAmount
           : 0;
         const hoverRadius = hoverWave >= 0
-          ? hoverWave * cw * HOVER_DOT_SCALE * FLUID_VISUAL_CONFIG.radiusMultiplier
+          ? hoverWave * designPitch * HOVER_DOT_SCALE * FLUID_VISUAL_CONFIG.radiusMultiplier
           : hoverWave * BASE_DOT_RADIUS * 0.85;
         const wave = (wakeWave + hoverRadius) * waterVisibility;
         const radius = clamp(BASE_DOT_RADIUS + fishRadius + wave +
-          highlight * RIPPLE_STRENGTH * RIPPLE_DOT_SCALE, 0.35, maxRadius);
+          highlight * RIPPLE_STRENGTH * RIPPLE_DOT_SCALE, W < 768 ? 0.2 : 0.35, maxRadius);
         const mix = clamp(d * 2.5, 0, 1);
         const waterMix = clamp(highlight * 0.55, 0, 1);
         const fluidMagnitude = clamp(Math.abs(hoverWave), 0, 1);
@@ -627,7 +630,7 @@ export default function KoiCanvas() {
         cx.arc(
           x + clamp(rippleX[i], -RIPPLE_DISPLACEMENT, RIPPLE_DISPLACEMENT) * waterVisibility,
           y + clamp(rippleY[i], -RIPPLE_DISPLACEMENT, RIPPLE_DISPLACEMENT) * waterVisibility,
-          radius, 0, TAU,
+          radius * dotScale, 0, TAU,
         );
         cx.fill();
       }
