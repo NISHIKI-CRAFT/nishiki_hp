@@ -17,6 +17,9 @@ export default function Home() {
             <a href={site.appStoreUrl} target="_blank" rel="noreferrer">
               Apps
             </a>
+            <a href={site.xUrl} target="_blank" rel="noreferrer">
+              X
+            </a>
             <a href={site.discordUrl} target="_blank" rel="noreferrer">
               Discord
             </a>
@@ -26,55 +29,34 @@ export default function Home() {
       </header>
 
       <main className="hero">
-        {/* App-icon mark; swaps light/dark artwork via CSS --mark-img */}
-        <div className="logo-mark" role="img" aria-label="NISHIKI CRAFT" />
-
-        <h1 className="wordmark">
-          NISHIKI <span className="craft">CRAFT</span>
-        </h1>
-
-        <p className="lead">{site.tagline}</p>
-
-        <div className="cta-row">
-          <a
-            className="btn btn-primary"
-            href={site.appStoreUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <AppleIcon />
-            App Store で見る
-          </a>
-          <a
-            className="btn btn-secondary"
-            href={site.discordUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span className="btn-brand-dot" />
-            Discord に参加
-          </a>
+        <div className="hero-content">
+          <p className="eyebrow"><span /> Independent digital craft</p>
+          <h1 className="wordmark">A world with<br />less digital<br className="hero-narrow-break" /><span className="hero-wide-space"> </span>noise<span className="hero-period">.</span></h1>
+          <div className="hero-details">
+            <div>
+              <p className="lead">Crafted in Japan. Built for the Real World.</p>
+              <div className="cta-row">
+                <a className="btn btn-primary" href={site.appStoreUrl} target="_blank" rel="noreferrer"><AppleIcon /> View on the App Store <span aria-hidden="true">↗</span></a>
+                <a className="btn btn-secondary" href={site.xUrl} target="_blank" rel="noreferrer">Follow X <span aria-hidden="true">↗</span></a>
+                <a className="btn btn-secondary" href={site.discordUrl} target="_blank" rel="noreferrer">Join Discord <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+            <a className="app-chip" href={site.firstApp.url} target="_blank" rel="noreferrer">
+              <span className="tag">APP 01</span>
+              <span className="app-info"><span className="name">{site.firstApp.name}</span><span className="blurb">{site.firstApp.blurb}</span></span>
+              <span className="arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
-
-        <a
-          className="app-chip"
-          href={site.firstApp.url}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <span className="tag">APP 01</span>
-          <span className="name">{site.firstApp.name}</span>
-          <span className="blurb">— {site.firstApp.blurb}</span>
-          <span className="arrow" aria-hidden="true">
-            →
-          </span>
-        </a>
       </main>
 
       <footer className="footer">
         <span>© {new Date().getFullYear()} NISHIKI CRAFT</span>
         <span className="links">
           <Link href="/privacy-policy">Privacy</Link>
+          <a href={site.xUrl} target="_blank" rel="noreferrer">
+            X
+          </a>
           <a href={site.discordUrl} target="_blank" rel="noreferrer">
             Discord
           </a>

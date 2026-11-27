@@ -36,7 +36,7 @@ export default function ThemeToggle() {
       type="button"
       className="theme-toggle"
       onClick={toggle}
-      aria-label={isDark ? "ライトモードに切り替え" : "ダークモードに切り替え"}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title="Toggle theme"
       // avoid a hydration flash of the wrong icon before we read the theme
       suppressHydrationWarning

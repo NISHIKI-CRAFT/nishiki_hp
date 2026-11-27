@@ -1,3 +1,5 @@
+@import "../tokens.css";
+
 :root {
   /* NISHIKI palette, aligned with the NISHIKI LIST design tokens. */
   --paper: #f4f4f6; /* oklch(96.7% 0.003 285) */
@@ -188,22 +190,6 @@ a {
   justify-content: center;
   text-align: center;
   padding: clamp(16px, 3vh, 40px) 24px clamp(20px, 3.5vh, 44px);
-}
-
-/* Soft paper halo so the wordmark stays readable over the koi. */
-.hero::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  width: min(760px, 92vw);
-  height: min(760px, 92vw);
-  border-radius: 50%;
-  background: radial-gradient(
-    closest-side,
-    color-mix(in srgb, var(--paper) 92%, transparent),
-    color-mix(in srgb, var(--paper) 72%, transparent) 42%,
-    color-mix(in srgb, var(--paper) 0%, transparent) 72%
-  );
 }
 
 .logo-mark {
@@ -499,4 +485,80 @@ a {
 }
 .legal-footer .legal-wrap {
   padding-block: 22px;
+}
+
+/* Editorial landing page: NISHIKI palette and koi remain the canvas. */
+html, body { overflow-x: clip; }
+body { font-family: var(--font-editorial); font-weight: var(--weight-body); }
+.topbar { padding: 28px var(--space-page); }
+.topbar .mark { height: 27px; }
+.topbar .nav { font-size: 0.75rem; font-weight: var(--weight-ui); letter-spacing: 0.04em; }
+.theme-toggle { width: 40px; height: 40px; border-radius: 0; background: transparent; }
+.hero { align-items: stretch; justify-content: center; text-align: left; padding: clamp(70px, 11vh, 140px) var(--space-page) var(--space-section); }
+.hero-content { width: min(100%, 1200px); }
+.eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 32px; color: var(--muted); font-size: 0.65rem; font-weight: var(--weight-label); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.wordmark { max-width: 100%; font-size: clamp(3rem, 7.4vw, 7.6rem); font-weight: var(--weight-display); line-height: 1.04; letter-spacing: -0.055em; overflow-wrap: anywhere; }
+.hero-period { color: var(--accent); }
+.hero-details { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 350px); align-items: end; gap: 48px; margin-top: clamp(38px, 6vw, 76px); }
+.lead { margin: 0; color: var(--ink); font-size: clamp(1rem, 1.25vw, 1.2rem); font-weight: var(--weight-body); line-height: 1.65; }
+.cta-row { justify-content: flex-start; gap: 12px; margin-top: 28px; }
+.btn { justify-content: center; gap: 10px; min-height: 48px; height: auto; padding: 13px 17px; border-radius: 0; font-size: 0.79rem; font-weight: var(--weight-ui); letter-spacing: 0; white-space: nowrap; box-shadow: none; transition: background 0.18s var(--ease-ui), border-color 0.18s var(--ease-ui), color 0.18s var(--ease-ui); }
+.btn svg { width: 15px; height: 15px; }
+.btn-secondary { background: color-mix(in srgb, var(--paper) 80%, transparent); }
+.btn-secondary:hover { background: var(--surface); }
+.app-chip { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 18px; margin: 0; padding: 18px 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: color-mix(in srgb, var(--paper) 80%, transparent); backdrop-filter: none; text-align: left; }
+.app-chip:hover { background: color-mix(in srgb, var(--paper) 80%, transparent); border-color: var(--muted); }
+.app-chip .tag { border: 0; border-radius: 0; padding: 3px 0; font-family: var(--font-editorial); font-size: 0.62rem; font-weight: var(--weight-label); letter-spacing: var(--tracking-label); }
+.app-info { display: grid; gap: 7px; }
+.app-chip .name { font-size: 0.82rem; font-weight: var(--weight-label); letter-spacing: 0.03em; }
+.app-chip .blurb { display: block; white-space: normal; font-size: 0.74rem; line-height: 1.6; }
+.footer { margin: 0 var(--space-page); padding: 24px 0; border-top: 1px solid var(--line); font-size: 0.68rem; font-weight: var(--weight-ui); letter-spacing: 0.04em; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (max-width: 700px) {
+  .topbar { padding-top: 20px; padding-bottom: 20px; }
+  .topbar .mark { height: 23px; }
+  .topbar .nav { display: flex; gap: 16px; }
+  .topbar-right { gap: 16px; }
+  .hero { justify-content: flex-start; padding-top: clamp(70px, 14vh, 120px); }
+  .eyebrow { margin-bottom: 26px; font-size: 0.58rem; }
+  .wordmark { font-size: clamp(2.75rem, 9.5vw, 4.5rem); line-height: 1.08; }
+  .hero-details { grid-template-columns: minmax(0, 1fr); gap: 52px; margin-top: 38px; }
+  .cta-row .btn { flex: 0 1 auto; }
+  .app-chip { max-width: 420px; }
+  .footer { gap: 16px; }
+}
+@media (max-width: 370px) {
+  .topbar .nav { gap: 10px; font-size: 0.68rem; }
+  .topbar-right { gap: 10px; }
+  .cta-row { gap: 8px; }
+  .btn { padding-inline: 12px; font-size: 0.73rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
+
+.legal-home, .legal-eyebrow { font-weight: var(--weight-label); }
+.legal-main h1, .legal-main h2 { font-weight: var(--weight-ui); }
+:root { --font-sans: var(--font-editorial); --font-mono: var(--font-editorial); }
+
+/* Readability follows the editorial layout without adding surfaces. */
+:root { --copy-secondary: #424248; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --copy-secondary: #c3c4cc; }
+}
+:root[data-theme="dark"] { --copy-secondary: #c3c4cc; }
+.wordmark { width: fit-content; }
+.hero-wide-space { display: none; }
+.lead { color: var(--copy-secondary); font-size: clamp(1rem, 1.3vw, 1.2rem); font-weight: var(--weight-ui); }
+.eyebrow, .topbar .nav, .footer { color: var(--copy-secondary); }
+.app-chip .name { font-size: 0.95rem; }
+.app-chip .blurb { color: var(--copy-secondary); font-size: 0.875rem; font-weight: var(--weight-ui); }
+.app-chip .arrow { color: var(--ink); font-size: 1.1rem; line-height: 1; }
+.app-chip:hover .arrow { color: var(--accent); }
+.footer { font-size: 0.78rem; }
+.footer a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 0.25em; }
+@media (min-width: 1200px) {
+  .hero-narrow-break { display: none; }
+  .hero-wide-space { display: inline; }
 }

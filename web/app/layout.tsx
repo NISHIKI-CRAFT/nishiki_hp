@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import { Montserrat } from "next/font/google";
 import { site } from "./site";
 import "./globals.css";
+
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["200", "300", "400", "500"], variable: "--font-montserrat", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nishiki-craft.com"),
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     description: site.tagline,
     siteName: site.brand,
     type: "website",
-    locale: "ja_JP",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
@@ -48,8 +49,8 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="ja"
-      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      lang="en"
+      className={montserrat.variable}
       suppressHydrationWarning
     >
       <body>
